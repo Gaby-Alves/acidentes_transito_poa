@@ -2,6 +2,7 @@
 
 library(jsonlite)
 library(tidyverse)
+library(lubridate)
 
 
 # Carregando os dados
@@ -9,12 +10,12 @@ url <- "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=b5
 dados <- fromJSON(url) 
 dados$result$records %>% as.data.frame -> df
 
-
+# Arrumando colunas
 # Arrumando as datas
-glimpse(df)
+
 df$data_extracao <- as.Date(df$data_extracao)
 df$data <- as.Date((df$data))
-glimpse(df)
+
 
 
 # arrumando o id
@@ -24,3 +25,12 @@ df <- df %>%
   rename(id =`_id`)
 
 
+# arrumando id acidade
+
+df$idacidente <- as.character(df$idacidente)
+glimpse(df)
+
+
+df$hora <- as.POSIXct(df$hora, format = "%H:%M:%S")
+
+df$hora <-stamp_date(df$hora, order = "hms")
