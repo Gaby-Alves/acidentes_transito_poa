@@ -83,6 +83,7 @@ hist_feridos <- ggplot(df,
                       geom_histogram(bins = 20, fill = "#440154FF")+
                       ylab("Contagem")+
                       xlab("Feridos")+
-                      theme_bw()
+                      theme_bw()+
+                      facet_wrap(~tipo_acid, scales = "free")
 hist_feridos
 
