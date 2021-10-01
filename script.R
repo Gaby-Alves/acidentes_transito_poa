@@ -1,10 +1,13 @@
 #Instalando os pacotes----------------------------------------------------------
 
-
+install.packages("anytime")
+install.packages("Rcpp")
 library(jsonlite)
 library(tidyverse)
 library(lubridate)
 library(chron)
+library(anytime)
+library(Rcpp)
 
 # Carregando os dados-----------------------------------------------------------
 url <- "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=b56f8123-716a-4893-9348-23945f1ea1b9&limit=500000"
@@ -17,7 +20,9 @@ glimpse(df)
 
 # Arrumando as datas
 df$data_extracao <- as.Date(df$data_extracao)
-df$data <- as.Date((df$data))
+df$data <- as.Date(df$data)
+df$data <- ymd_hms(df$data, tz = NULL)
+df$data <- anydate(df$data)
 
 # arrumando o id
 df$`_id`<- as.character(df$`_id`)
@@ -87,3 +92,7 @@ hist_feridos <- ggplot(df,
                       facet_wrap(~tipo_acid, scales = "free")
 hist_feridos
 
+ggplot(df,
+       aes(x=as.numeric(data), y= feridos)) +
+      geom_line()+
+      scale_x_date(date_labels = "Y%-%m-%d")
