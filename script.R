@@ -93,6 +93,6 @@ hist_feridos <- ggplot(df,
 hist_feridos
 
 ggplot(df,
-       aes(x=as.numeric(data), y= feridos)) +
-      geom_line()+
+       aes(x=data, y= feridos)) +
+      geom_line()
       scale_x_date(date_labels = "Y%-%m-%d")
