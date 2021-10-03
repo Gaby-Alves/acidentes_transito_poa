@@ -1,5 +1,5 @@
 pacotes <- c("anytime", "Rcpp","tidyverse", "jsonlite","lubridate","chron",
-             "anytime"
+             "plotly"
 )
 
 

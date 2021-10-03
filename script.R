@@ -1,39 +1,20 @@
-#Instalando os pacotes----------------------------------------------------------
-
-install.packages("anytime")
-install.packages("Rcpp")
-install.packages("tidyverse", type="binary")
-library(jsonlite)
-library(tidyverse)
-library(lubridate)
-library(chron)
-library(anytime)
-library(Rcpp)
-
 # Carregando os dados-----------------------------------------------------------
 url <- "https://dadosabertos.poa.br/api/3/action/datastore_search?resource_id=b56f8123-716a-4893-9348-23945f1ea1b9&limit=500000"
 dados <- fromJSON(url) 
 dados$result$records %>% as.data.frame -> df
 
-# Arrumando colunas-------------------------------------------------------------
-
+# Observando o dados baixados
 glimpse(df)
-
-# Arrumando as datas
+# Como as colunas não estão com os formatos corretos, temos que arrumar elas.
+# Arrumando colunas-------------------------------------------------------------
+# arrumando datas
+df$data <- as.Date(df$data)
 df$data_extracao <- as.Date(df$data_extracao)
-df$data <- as.Date(df$data) # base  R
-df$data <- ymd_hms(df$data, tz = NULL) #lubridate
-df$data <- anydate(df$data) # anytime package
 
 # arrumando o id
-df$`_id`<- as.character(df$`_id`)
-
 df <- df %>%
   rename(id =`_id`)
-
-# arrumando id acidade
 df$idacidente <- as.character(df$idacidente)
-df$hora <- chron(times = df$hora)
 
 # arrumando longitude e latitude
 df$latitude <- as.character(df$latitude)
@@ -45,20 +26,37 @@ df$predial1 <- as.character(df$predial1)
 # transformando em factor
 # tipo_acident
 df$tipo_acid <- as.factor(df$tipo_acid)
+
 # dia da semana
 df$dia_sem <- as.factor(df$dia_sem)
+
 # noite_dia
 df$noite_dia <- as.factor(df$noite_dia)
+
 #  regiao
 df$regiao <- as.factor(df$regiao)
+
 # consorcio
 df$consorcio  <- as.factor(df$consorcio)
 
+
+#Arrumando hora
+df$hora <- chron(times = df$hora)
+
 # conferindo o dataset arrumado
 glimpse(df)
+
+
+# Filtrando datas  estranhas ---------------------------------------------------
+
+df <- df %>%
+  filter(data <= now())
 # Conhecendo a base-------------------------------------------------------------
 # Dimensão do data set 
-cat("O dataset contém", nrow(df)," linhas e", ncol(df)," colunas.")
+
+cat("O dataset contém", nrow(df)," linhas e", ncol(df)," colunas.","\n",
+    "Com dados a partir de",
+    as.character(min(df$data)))
 
 # Criando um for para descrever as colunas do dataset.
 descricao <- table(sapply(df,class))
@@ -84,22 +82,27 @@ cat("O propósito deste projeto é a criação de um modelo capaz de prever a qu
 # Conhecendo um resumo dos dados.
 summary(df) 
 
-hist_feridos <- ggplot(df,
-                       aes(x=feridos))+
-                      geom_histogram(bins = 20, fill = "#440154FF")+
-                      ylab("Contagem")+
-                      xlab("Feridos")+
-                      theme_bw()+
-                      facet_wrap(~tipo_acid, scales = "free")
-hist_feridos
+ggplot(df,
+aes(x=feridos))+
+geom_histogram(bins = 20, fill = "#440154FF")+
+ylab("Contagem")+
+xlab("Feridos")+
+theme_bw()+
+facet_wrap(~tipo_acid, scales = "free")
+
+ggplotly(ggplot(df, aes(x=data, y=sum(feridos))) +
+  geom_line())
+      
+      
 
 ggplot(df,
-       aes(x=data, y= feridos)) +
-      geom_line()
-      scale_x_date(date_labels = "Y%-%m-%d")
-      
-      
-      
-      
-teste <- df$data
-class(teste)
+       aes(x=feridos))+
+  geom_histogram(bins = 25, fill = "#440154FF")+
+  ylab("Contagem")+
+  xlab("Feridos")+
+  theme_bw()
+
+df %>%
+  group_by(feridos) %>%
+  ggplot(aes(x=data, y=feridos))+
+           geom_line()
