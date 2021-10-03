@@ -2,6 +2,7 @@
 
 install.packages("anytime")
 install.packages("Rcpp")
+install.packages("tidyverse", type="binary")
 library(jsonlite)
 library(tidyverse)
 library(lubridate)
@@ -20,9 +21,9 @@ glimpse(df)
 
 # Arrumando as datas
 df$data_extracao <- as.Date(df$data_extracao)
-df$data <- as.Date(df$data)
-df$data <- ymd_hms(df$data, tz = NULL)
-df$data <- anydate(df$data)
+df$data <- as.Date(df$data) # base  R
+df$data <- ymd_hms(df$data, tz = NULL) #lubridate
+df$data <- anydate(df$data) # anytime package
 
 # arrumando o id
 df$`_id`<- as.character(df$`_id`)
@@ -96,3 +97,9 @@ ggplot(df,
        aes(x=data, y= feridos)) +
       geom_line()
       scale_x_date(date_labels = "Y%-%m-%d")
+      
+      
+      
+      
+teste <- df$data
+class(teste)
