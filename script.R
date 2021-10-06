@@ -79,30 +79,52 @@ cat("O propósito deste projeto é a criação de um modelo capaz de prever a qu
     de feridos por acidente de trânsito utilizando os dados de mobilidade da cidade
     de Porto Alegre.")
 
-# Conhecendo um resumo dos dados.
+# Conhecendo um resumo dos dados------------------------------------------------
 summary(df) 
 
-ggplot(df,
-aes(x=feridos))+
-geom_histogram(bins = 20, fill = "#440154FF")+
-ylab("Contagem")+
-xlab("Feridos")+
-theme_bw()+
-facet_wrap(~tipo_acid, scales = "free")
+# Subset para ver a quantidade de feridos por dia
 
-ggplotly(ggplot(df, aes(x=data, y=sum(feridos))) +
-  geom_line())
-      
-      
+# Criando uma coluna de ano
+df <- df %>%
+  mutate(ano = year(data))
 
-ggplot(df,
-       aes(x=feridos))+
-  geom_histogram(bins = 25, fill = "#440154FF")+
-  ylab("Contagem")+
-  xlab("Feridos")+
+# Feridos por ano
+df %>%
+  group_by(ano) %>%
+  summarise(n_feridos = sum(feridos),
+            n_acidentes = n_distinct(idacidente)) %>%
+  mutate(perc_feridos = n_feridos/sum(n_feridos)*100,
+         perc_acident = n_acidentes/sum(n_acidentes)*100,
+         fer_vs_acid=n_feridos/n_acidentes) %>%kable() %>%
+  kable_styling(bootstrap_options = "condensed", full_width = T)
+
+# Visualizando feridos por ano
+df %>%
+  group_by(ano) %>%
+  summarise(n_feridos = sum(feridos)) %>%
+  mutate(percent = n_feridos/sum(n_feridos)*100) %>%
+  ggplot(aes(x=ano, y=n_feridos))+
+  geom_line()+
+  geom_point(color="#593d9cff")+
+  geom_text_repel(aes(label=n_feridos))+
+  ylab("Contagem de Feridos")+
+  xlab("Ano")+
   theme_bw()
 
+
+
 df %>%
-  group_by(feridos) %>%
-  ggplot(aes(x=data, y=feridos))+
-           geom_line()
+  group_by(data,noite_dia) %>%
+  summarise(n_feridos=sum(feridos)) %>%
+  ggplot(aes(data,n_feridos))+geom_line()+facet_wrap(~noite_dia) + theme_bw()
+
+df %>%
+  group_by(data,tipo_acid) %>%
+  summarise(n_feridos=sum(feridos)) %>%
+  ggplot(aes(data,n_feridos))+geom_line()+facet_wrap(~tipo_acid) + theme_bw()
+
+
+df %>%
+  group_by(data,noite_dia) %>%
+  summarise(n_feridos=sum(feridos)) %>%
+  ggplot(aes(x="",y=n_feridos))+geom_boxplot()+facet_wrap(~noite_dia) + theme_bw()
