@@ -129,7 +129,19 @@ contagem_mes <- df %>%
          perc_acid = n_acidentes/sum(n_acidentes)*100,
          fer_vs_acid = n_feridos/n_acidentes)
 
-
+ggplot(contagem_mes) +
+  geom_line(aes(x=mes, y=n_feridos,color="Feridos")) +
+  geom_point(aes(x=mes, y=n_feridos))+
+  geom_text_repel(aes(x=mes, y=n_feridos,label=n_feridos)) +
+  geom_line(aes(x=mes, y=n_acidentes, color="Acidentes"))+
+  geom_point(aes(x=mes, y=n_acidentes)) +
+  geom_text_repel(aes(x=mes, y=n_acidentes, label=n_acidentes ))+
+  scale_color_manual(name="Número", values = c("Feridos" = "#eb8055ff",
+                                               "Acidentes" = "#593d9cff"))+
+  ylab("Contagem") +
+  xlab("Mês") + 
+  theme_bw()+
+  theme(legend.position = "top")
 
 
 df %>%
