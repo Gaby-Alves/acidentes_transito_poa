@@ -97,8 +97,7 @@ contagem_ano <- df %>%
             n_acidentes = n_distinct(idacidente)) %>%
   mutate(perc_feridos = n_feridos/sum(n_feridos)*100,
          perc_acident = n_acidentes/sum(n_acidentes)*100,
-         fer_vs_acid=n_feridos/n_acidentes) 
-
+         fer_vs_acid=(n_feridos/n_acidentes))
 
 kable(contagem_ano)%>%
 kable_styling(bootstrap_options = "condensed", full_width = T)
@@ -120,17 +119,16 @@ ggplot(contagem_ano) +
 #https://stackoverflow.com/questions/40833809/add-legend-to-geom-line-graph-in-r
 
 # Visualizando feridos por ano
-df %>%
-  group_by(ano) %>%
-  summarise(n_feridos = sum(feridos)) %>%
-  mutate(percent = n_feridos/sum(n_feridos)*100) %>%
-  ggplot(aes(x=ano, y=n_feridos))+
-  geom_line()+
-  geom_point(color="#593d9cff")+
-  geom_text_repel(aes(label=n_feridos))+
-  ylab("Contagem de Feridos")+
-  xlab("Ano")+
-  theme_bw() 
+
+contagem_mes <- df %>%
+  mutate(mes = month(data)) %>%
+  group_by(mes) %>%
+  summarise(n_feridos = sum(feridos),
+            n_acidentes = n_distinct(idacidente)) %>%
+  mutate(perc_feridos = n_feridos/sum(n_feridos)*100,
+         perc_acid = n_acidentes/sum(n_acidentes)*100,
+         fer_vs_acid = n_feridos/n_acidentes)
+
 
 
 
