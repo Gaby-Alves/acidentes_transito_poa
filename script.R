@@ -88,15 +88,36 @@ summary(df)
 df <- df %>%
   mutate(ano = year(data))
 
+
+# Observando a frequencia temporal dos feridos.
 # Feridos por ano
-df %>%
+contagem_ano <- df %>%
   group_by(ano) %>%
   summarise(n_feridos = sum(feridos),
             n_acidentes = n_distinct(idacidente)) %>%
   mutate(perc_feridos = n_feridos/sum(n_feridos)*100,
          perc_acident = n_acidentes/sum(n_acidentes)*100,
-         fer_vs_acid=n_feridos/n_acidentes) %>%kable() %>%
-  kable_styling(bootstrap_options = "condensed", full_width = T)
+         fer_vs_acid=n_feridos/n_acidentes) 
+
+
+kable(contagem_ano)%>%
+kable_styling(bootstrap_options = "condensed", full_width = T)
+
+ggplot(contagem_ano) +
+  geom_line(aes(x=ano, y=n_feridos,color="Feridos")) +
+  geom_point(aes(x=ano, y=n_feridos))+
+  geom_text_repel(aes(x=ano, y=n_feridos,label=n_feridos)) +
+  geom_line(aes(x=ano, y=n_acidentes, color="Acidentes"))+
+  geom_point(aes(x=ano, y=n_acidentes)) +
+  geom_text_repel(aes(x=ano, y=n_acidentes, label=n_acidentes ))+
+  scale_color_manual(name="Número", values = c("Feridos" = "#eb8055ff",
+                                               "Acidentes" = "#593d9cff"))+
+  ylab("Contagem") +
+  xlab("Ano") + 
+  theme_bw()+
+  theme(legend.position = "top")
+
+#https://stackoverflow.com/questions/40833809/add-legend-to-geom-line-graph-in-r
 
 # Visualizando feridos por ano
 df %>%
@@ -109,10 +130,25 @@ df %>%
   geom_text_repel(aes(label=n_feridos))+
   ylab("Contagem de Feridos")+
   xlab("Ano")+
-  theme_bw()
+  theme_bw() 
 
 
 
+df %>%
+  group_by(ano) %>%
+  summarise(n_acidentes = n_distinct(idacidente)) %>%
+  mutate(percent = n_acidentes/sum(n_acidentes)*100) %>%
+  ggplot(aes(x=ano, y=n_acidentes)) +geom_line()
+
+
+
+
+df %>%
+  mutate(mes = month(data)) %>%
+  group_by(data) %>%
+  
+
+  
 df %>%
   group_by(data,noite_dia) %>%
   summarise(n_feridos=sum(feridos)) %>%
