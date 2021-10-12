@@ -1,5 +1,6 @@
 pacotes <- c("anytime", "Rcpp","tidyverse", "jsonlite","lubridate","chron",
-             "plotly","ggrepel","kableExtra"
+             "plotly","ggrepel","kableExtra", "reshape2","forcats","fastDummies",
+             "overdisp"
 )
 
 
